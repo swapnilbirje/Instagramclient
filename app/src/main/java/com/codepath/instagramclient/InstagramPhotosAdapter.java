@@ -2,6 +2,7 @@ package com.codepath.instagramclient;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,11 +41,21 @@ public class InstagramPhotosAdapter extends ArrayAdapter<InstagramPhoto> {
         //look up the views for populate in the data
         TextView tvCaption = (TextView) convertView.findViewById(R.id.tvCaption);
         ImageView ivPhoto = (ImageView) convertView.findViewById(R.id.ivPhoto);
+        ImageView ivUserPhoto = (ImageView) convertView.findViewById(R.id.ivProfilePic);
+        TextView tvUserName = (TextView) convertView.findViewById(R.id.tvUserName);
+        TextView tvCreatedTime = (TextView) convertView.findViewById(R.id.tvCreatedTime);
 
+        //Time spans - formatted like "42 minutes ago"
+        String[] createdTimeArray = DateUtils.getRelativeTimeSpanString(photo.createdTime * 1000,
+                System.currentTimeMillis(), DateUtils.FORMAT_ABBREV_RELATIVE).toString().split(" ");
+
+        tvCreatedTime.setText(createdTimeArray[0]+" "+createdTimeArray[1].charAt(0));
         //insert the model data into each of the view items
         tvCaption.setText(photo.caption);
+        tvUserName.setText(photo.username);
         //clear the last image before inserting new image from URL
         ivPhoto.setImageResource(0);
+        ivUserPhoto.setImageResource(0);
 
         //Make transformation for Picasso
         Transformation transformation = new RoundedTransformationBuilder()
@@ -71,6 +82,13 @@ public class InstagramPhotosAdapter extends ArrayAdapter<InstagramPhoto> {
                 .error(android.R.drawable.stat_notify_error)
                 .placeholder(R.drawable.progress_animation)
                 .into(ivPhoto);
+
+        Picasso.with(getContext())
+                .load(photo.imageUrl)
+                .transform(transformationThumbnail)
+                .error(android.R.drawable.stat_notify_error)
+                .placeholder(R.drawable.progress_animation)
+                .into(ivUserPhoto);
 
         return convertView;
     }
